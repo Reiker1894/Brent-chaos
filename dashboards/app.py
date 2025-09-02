@@ -7,9 +7,16 @@ st.set_page_config(page_title="Brent – Caos & ML", layout="wide")
 st.title("Pronóstico Brent con medidas de Caos + ML")
 
 # Datos
-price = pd.read_csv("data/raw/" + sorted((Path("data/raw")).glob("brent_*.csv"))[-1].name, index_col=0, parse_dates=True)
-rets  = pd.read_parquet(PROC/"brent_returns.parquet")
+# Datos
+files = sorted(Path("data/raw").glob("brent_*.csv"))
+if files:
+    latest_file = files[-1]
+    price = pd.read_csv(latest_file, index_col=0, parse_dates=True)
+else:
+    st.error("⚠️ No se encontraron archivos en data/raw/")
+    price = pd.DataFrame()
 
+rets  = pd.read_parquet(PROC/"brent_returns.parquet")
 col1, col2 = st.columns(2)
 with col1:
     st.subheader("Precio Brent")
