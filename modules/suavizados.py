@@ -6,9 +6,10 @@ import matplotlib.pyplot as plt
 
 @st.cache_data
 def cargar_datos():
-    url = "https://raw.githubusercontent.com/YOUR_USERNAME/brent-streamlit/main/data/brent_diario.csv"
-    df = pd.read_csv(url, parse_dates=["Date"])
-    df.set_index("Date", inplace=True)
+    start = "1987-05-20"
+    end = "2025-09-07"
+    df = web.DataReader("DCOILBRENTEU", "fred", start, end).dropna()
+    df = df.rename(columns={"DCOILBRENTEU": "Brent_Price"})
     return df
 
 def mostrar_suavizados():
