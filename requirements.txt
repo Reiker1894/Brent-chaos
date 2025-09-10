@@ -16,3 +16,4 @@ scipy
 seaborn
 yfinance
 scikit-learn
+hurst
