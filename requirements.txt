@@ -8,3 +8,11 @@ scipy
 streamlit
 python-dotenv
 pyarrow
+streamlit
+pandas
+numpy
+matplotlib
+scipy
+seaborn
+yfinance
+scikit-learn
