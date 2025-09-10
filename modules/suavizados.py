@@ -3,7 +3,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-
+import pandas_datareader.data as web
 @st.cache_data
 def cargar_datos():
     start = "1987-05-20"
