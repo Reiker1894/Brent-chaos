@@ -6,8 +6,8 @@ import streamlit.components.v1 as components
 
 st.set_page_config(page_title="Maestría en Ciencias Económicas", layout="wide")
 # --- Fondo personalizado (si tienes background.html) ---
-components.html(open("background.html", "r").read(), height=0, width=0)
-# --- Configuración de página ---
+# components.html(open("background.html", "r").read(), height=0, width=0)
+# # --- Configuración de página ---
 
 
 st.sidebar.title("Navegación")
