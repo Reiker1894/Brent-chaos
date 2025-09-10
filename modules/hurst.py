@@ -1,57 +1,100 @@
-# modules/hurst.py
-
 import streamlit as st
 import pandas as pd
-import numpy as np
-import yfinance as yf
 import matplotlib.pyplot as plt
-from hurst import compute_Hc
+import seaborn as sns
+import pandas_datareader.data as web
+import numpy as np
+from scipy.stats import skew, kurtosis, shapiro, normaltest, jarque_bera
 
 @st.cache_data
 def cargar_datos():
-    data = yf.download("BZ=F", start="1990-01-01")
-    data = data[['Adj Close']].rename(columns={'Adj Close': 'Brent_Price'})
-    data.dropna(inplace=True)
-    return data
+    start = "1987-05-20"
+    end = "2025-09-07"
+    df = web.DataReader("DCOILBRENTEU", "fred", start, end).dropna()
+    df = df.rename(columns={"DCOILBRENTEU": "Brent_Price"})
+    return df
+
+def hurst_exponent(ts, max_lag=100):
+    lags = range(2, max_lag)
+    tau = []
+    for lag in lags:
+        chunks = [ts[i:i+lag] for i in range(0, len(ts) - lag, lag)]
+        rs_values = []
+        for chunk in chunks:
+            if len(chunk) < lag:
+                continue
+            Y = chunk - np.mean(chunk)
+            Z = np.cumsum(Y)
+            R = max(Z) - min(Z)
+            S = np.std(chunk)
+            if S != 0:
+                rs_values.append(R / S)
+        if len(rs_values) > 0:
+            tau.append(np.mean(rs_values))
+        else:
+            tau.append(np.nan)
+    log_lags = np.log10(list(lags))
+    log_tau = np.log10(tau)
+    mask = ~np.isnan(log_tau)
+    hurst, _ = np.polyfit(log_lags[mask], log_tau[mask], 1)
+    return hurst
+
+def plot_hurst_rs(ts, max_lag=100, title=''):
+    lags = range(2, max_lag)
+    tau = []
+    for lag in lags:
+        chunks = [ts[i:i+lag] for i in range(0, len(ts) - lag, lag)]
+        rs_values = []
+        for chunk in chunks:
+            if len(chunk) < lag:
+                continue
+            Y = chunk - np.mean(chunk)
+            Z = np.cumsum(Y)
+            R = max(Z) - min(Z)
+            S = np.std(chunk)
+            if S != 0:
+                rs_values.append(R / S)
+        if len(rs_values) > 0:
+            tau.append(np.mean(rs_values))
+        else:
+            tau.append(np.nan)
+    log_lags = np.log10(list(lags))
+    log_tau = np.log10(tau)
+    mask = ~np.isnan(log_tau)
+    slope, intercept = np.polyfit(log_lags[mask], log_tau[mask], 1)
+    plt.figure(figsize=(8,6))
+    plt.plot(log_lags, log_tau, 'o', label="log(R/S)")
+    plt.plot(log_lags, slope * log_lags + intercept, 'r--', label=f'Ajuste lineal (H = {slope:.4f})')
+    plt.title(f'Gráfico log(R/S) vs log(n) - {title}')
+    plt.xlabel("log(n)")
+    plt.ylabel("log(R/S)")
+    plt.grid(True)
+    plt.legend()
+    st.pyplot(plt.gcf())
 
 def mostrar_exponente_hurst():
-    st.header("Cálculo del Exponente de Hurst")
+    st.header("Exponente de Hurst")
+
     df = cargar_datos()
+    df_diaria = df.copy()
+    df_semanal = df.resample('W').mean()
+    df_mensual = df.resample('M').mean()
 
-    fecha_inicio = st.date_input("Fecha de inicio", df.index.min().date(), key='h_inicio')
-    fecha_fin = st.date_input("Fecha de fin", df.index.max().date(), key='h_fin')
+    H_diaria = hurst_exponent(df_diaria['Brent_Price'])
+    H_semanal = hurst_exponent(df_semanal['Brent_Price'])
+    H_mensual = hurst_exponent(df_mensual['Brent_Price'])
 
-    if fecha_inicio >= fecha_fin:
-        st.error("La fecha de inicio debe ser anterior a la fecha de fin.")
-        return
+    st.write("**Exponentes de Hurst:**")
+    st.write(f"- Diaria: {H_diaria:.4f}")
+    st.write(f"- Semanal: {H_semanal:.4f}")
+    st.write(f"- Mensual: {H_mensual:.4f}")
 
-    df_filtrado = df[(df.index >= pd.to_datetime(fecha_inicio)) & (df.index <= pd.to_datetime(fecha_fin))]
-    if df_filtrado.empty:
-        st.warning("No hay datos para el rango seleccionado.")
-        return
+    st.subheader("Visualización log-log del análisis R/S")
+    frecuencia = st.selectbox("Selecciona la frecuencia para visualizar", ["Diaria", "Semanal", "Mensual"])
 
-    ts = df_filtrado['Brent_Price'].values
-    H, c, data = compute_Hc(ts, kind='price', simplified=True)
-
-    st.subheader("Resultado del Exponente de Hurst")
-    st.write(f"**H = {H:.4f}**")
-
-    fig, ax = plt.subplots(figsize=(8,6))
-    ax.plot(data[0], c * data[0]**H, label=f"Ajuste H = {H:.4f}", color='red')
-    ax.scatter(data[0], data[1], alpha=0.6)
-    ax.set_xscale('log')
-    ax.set_yscale('log')
-    ax.set_xlabel("Escala (log)")
-    ax.set_ylabel("Desviación estándar (log)")
-    ax.set_title("Estimación del Exponente de Hurst")
-    ax.legend()
-    ax.grid(True)
-    st.pyplot(fig)
-
-    st.markdown("""
-    **Interpretación sugerida:**
-    - Si **H > 0.5**, hay persistencia: tendencias tienden a continuar (memory effect).
-    - Si **H < 0.5**, hay anti-persistencia: reversión frecuente a la media.
-    - Si **H ≈ 0.5**, comportamiento tipo paseo aleatorio.
-    - Este análisis ayuda a decidir si modelos como ARIMA, LSTM o fractales pueden capturar mejor la dinámica del Brent.
-    """)
+    if frecuencia == "Diaria":
+        plot_hurst_rs(df_diaria['Brent_Price'].values, title='Brent - Frecuencia Diaria')
+    elif frecuencia == "Semanal":
+        plot_hurst_rs(df_semanal['Brent_Price'].values, title='Brent - Frecuencia Semanal')
+    else:
+        plot_hurst_rs(df_mensual['Brent_Price'].values, title='Brent - Frecuencia Mensual')
