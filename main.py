@@ -1,34 +1,35 @@
-# Estructura de tu proyecto en GitHub
-
-# brent-chaos/
-# ├── app.py                ← App principal Streamlit
-# ├── requirements.txt     ← Dependencias
-# ├── data_utils.py         ← Descarga y limpieza
-# ├── analysis.py           ← Estadísticas, normalidad, Hurst, etc.
-# └── plots.py              ← Gráficos
-
 import streamlit as st
-from modules.estadistica import mostrar_estadisticas
-from modules.normalidad import mostrar_pruebas_normalidad
-from modules.hurst import mostrar_exponente_hurst
 from modules.suavizados import mostrar_suavizados
+from modules.estadisticas import mostrar_estadisticas
+from modules.hurst import mostrar_hurst
 
+st.set_page_config(page_title="Análisis del Precio del Brent", layout="wide")
 
-st.set_page_config(layout="wide", page_title="Análisis del Brent")
+st.sidebar.title("Navegación")
+secciones = [
+    "Inicio",
+    "Suavizados",
+    "Estadísticas",
+    "Hurst"
+]
+seleccion = st.sidebar.radio("Ir a:", secciones)
 
+if seleccion == "Inicio":
+    st.title("Análisis Multiescala del Precio del Brent")
+    st.markdown("""
+    Esta aplicación interactiva permite explorar el comportamiento histórico del precio del petróleo Brent usando visualizaciones, estadísticas y técnicas de análisis como el exponente de Hurst. 
 
-st.title("Dashboard de Análisis del Precio del Brent")
+    Puedes navegar entre las secciones usando el menú lateral para visualizar:
+    - Suavizados de la serie diaria
+    - Estadísticas descriptivas y distribuciones
+    - Cálculo e interpretación del exponente de Hurst
+    """)
 
+elif seleccion == "Suavizados":
+    mostrar_suavizados()
 
-opciones = ["Estadísticas Generales", "Suavizados", "Pruebas de Normalidad", "Exponente de Hurst"]
-opcion = st.sidebar.radio("Selecciona un análisis:", opciones)
+elif seleccion == "Estadísticas":
+    mostrar_estadisticas()
 
-
-if opcion == "Estadísticas Generales":
-mostrar_estadisticas()
-elif opcion == "Suavizados":
-mostrar_suavizados()
-elif opcion == "Pruebas de Normalidad":
-mostrar_pruebas_normalidad()
-elif opcion == "Exponente de Hurst":
-mostrar_exponente_hurst()
+elif seleccion == "Hurst":
+    mostrar_hurst()
