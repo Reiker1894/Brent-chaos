@@ -1,46 +1,34 @@
-
 # main.py
+
 import streamlit as st
 
-st.set_page_config(layout="wide", page_title="Tesis - Análisis Brent & Caos")
+# Importar módulos personalizados
+from modules.suavizados import mostrar_suavizados
+from modules.estadistica import mostrar_estadisticas
+from modules.normalidad import mostrar_pruebas_normalidad
+from modules.hurst import mostrar_exponente_hurst
 
-st.sidebar.title("Menú")
-opcion = st.sidebar.selectbox("Selecciona análisis", [
-    "Inicio",
-    "Serie histórica + Suavizados",
-    "Estadística descriptiva",
-    "Normalidad",
-    "Hurst exponent",
-    "Multiescala"
-])
+st.set_page_config(page_title="Análisis del Precio del Brent", layout="wide")
 
-if opcion == "Inicio":
-    st.title("Análisis de Caos y Fractalidad en el Brent")
-    st.markdown("""
-    Bienvenido al panel interactivo de avances de tesis.
-    
-    Aquí se muestran los análisis estadísticos, fractales y de caos aplicados al precio del crudo Brent.
-    
-    **Fecha actual**: Septiembre 2025  
-    **Objetivo**: Explorar evidencia de dinámica compleja (no lineal, caótica, autosimilar) en el mercado energético.
-    """)
-    
-elif opcion == "Serie histórica + Suavizados":
-    from modules.suavizados import mostrar_suavizados
+st.title("Análisis Económico del Precio del Crudo Brent 🛢️")
+
+st.markdown("""
+Esta aplicación permite explorar propiedades estadísticas y dinámicas no lineales del Brent, integrando visualizaciones, pruebas estadísticas y herramientas avanzadas como el exponente de Hurst. Ideal para el desarrollo de tesis en econometría, finanzas cuantitativas y econofísica.
+""")
+
+opcion = st.sidebar.selectbox(
+    "Selecciona un módulo de análisis",
+    ("Serie histórica + Suavizados",
+     "Estadística Descriptiva",
+     "Pruebas de Normalidad",
+     "Exponente de Hurst")
+)
+
+if opcion == "Serie histórica + Suavizados":
     mostrar_suavizados()
-
-elif opcion == "Estadística descriptiva":
-    from modules.estadistica import mostrar_estadisticas
+elif opcion == "Estadística Descriptiva":
     mostrar_estadisticas()
-
-elif opcion == "Normalidad":
-    from modules.normalidad import test_normalidad
-    test_normalidad()
-
-elif opcion == "Hurst exponent":
-    from modules.hurst import calcular_hurst
-    calcular_hurst()
-
-elif opcion == "Multiescala":
-    from modules.multiscale import grafico_multiescala
-    grafico_multiescala()
+elif opcion == "Pruebas de Normalidad":
+    mostrar_pruebas_normalidad()
+elif opcion == "Exponente de Hurst":
+    mostrar_exponente_hurst()
