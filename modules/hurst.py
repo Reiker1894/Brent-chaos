@@ -72,7 +72,7 @@ def plot_hurst_rs(ts, max_lag=100, title=''):
     plt.legend()
     st.pyplot(plt.gcf())
 
-def mostrar_exponente_hurst():
+def mostrar_hurst():
     st.header("Exponente de Hurst")
 
     df = cargar_datos()
