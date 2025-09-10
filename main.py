@@ -2,13 +2,17 @@ import streamlit as st
 from modules.suavizados import mostrar_suavizados
 from modules.estadistica import mostrar_estadisticas
 from modules.hurst import mostrar_hurst
-
+import streamlit.components.v1 as components
 # --- Configuración de página ---
 st.set_page_config(page_title="Maestría en Ciencias Económicas", layout="wide")
 
 # --- Fondo personalizado (si tienes background.html) ---
 components.html(open("background.html", "r").read(), height=0, width=0)
+# --- Configuración de página ---
+st.set_page_config(page_title="Maestría en Ciencias Económicas", layout="wide")
 
+# --- Fondo personalizado (si tienes background.html) ---
+components.html(open("background.html", "r").read(), height=0, width=0)
 
 st.sidebar.title("Navegación")
 secciones = [
