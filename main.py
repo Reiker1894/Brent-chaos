@@ -1,6 +1,6 @@
 import streamlit as st
 from modules.suavizados import mostrar_suavizados
-from modules.estadisticas import mostrar_estadisticas
+from modules.estadistica import mostrar_estadisticas
 from modules.hurst import mostrar_hurst
 
 st.set_page_config(page_title="Análisis del Precio del Brent", layout="wide")
