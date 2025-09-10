@@ -2,28 +2,33 @@
 
 import streamlit as st
 import pandas as pd
-import yfinance as yf
 import matplotlib.pyplot as plt
 
 @st.cache_data
 def cargar_datos():
-    data = yf.download("BZ=F", start="1990-01-01")
-    data = data[['Adj Close']].rename(columns={'Adj Close': 'Brent_Price'})
-    data.dropna(inplace=True)
-    return data
+    url = "https://raw.githubusercontent.com/YOUR_USERNAME/brent-streamlit/main/data/brent_diario.csv"
+    df = pd.read_csv(url, parse_dates=["Date"])
+    df.set_index("Date", inplace=True)
+    return df
 
 def mostrar_suavizados():
     st.header("Suavizado de la Serie Histórica del Brent")
     df = cargar_datos()
 
-    df['MA_5'] = df['Brent_Price'].rolling(window=5).mean()
-    df['MA_22'] = df['Brent_Price'].rolling(window=22).mean()
+    # Parámetros interactivos
+    dias_semanal = st.slider("Ventana suavizado semanal (días)", 2, 10, 5)
+    dias_mensual = st.slider("Ventana suavizado mensual (días)", 10, 30, 22)
 
+    # Calcular medias móviles
+    df["MA_semanal"] = df["Brent_Price"].rolling(window=dias_semanal).mean()
+    df["MA_mensual"] = df["Brent_Price"].rolling(window=dias_mensual).mean()
+
+    # Mostrar gráfico
     fig, ax = plt.subplots(figsize=(14, 6))
-    ax.plot(df.index, df['Brent_Price'], label="Original", color='gray', linewidth=1)
-    ax.plot(df.index, df['MA_5'], label="Media Móvil (5 días)", color='blue')
-    ax.plot(df.index, df['MA_22'], label="Media Móvil (22 días)", color='red')
-    ax.set_title("Serie diaria del Brent con suavizados")
+    ax.plot(df.index, df["Brent_Price"], label="Original", color='black', alpha=0.4)
+    ax.plot(df.index, df["MA_semanal"], label=f"Media Móvil ({dias_semanal} días)", color='blue')
+    ax.plot(df.index, df["MA_mensual"], label=f"Media Móvil ({dias_mensual} días)", color='red')
+    ax.set_title("Serie diaria del Brent con suavizado semanal y mensual")
     ax.set_xlabel("Fecha")
     ax.set_ylabel("Precio (USD)")
     ax.legend()
@@ -31,10 +36,8 @@ def mostrar_suavizados():
     st.pyplot(fig)
 
     st.markdown("""
-    **Interpretación sugerida:**
-    - La serie original muestra alta volatilidad y ruido a corto plazo.
-    - El suavizado de 5 días permite ver tendencias semanales.
-    - El de 22 días revela patrones mensuales.
-    - La consistencia entre escalas sugiere autosimilitud estructural.
+    **Interpretación:**
+    - Las medias móviles permiten suavizar las oscilaciones diarias del precio.
+    - El suavizado mensual (línea roja) muestra mejor las tendencias de largo plazo.
+    - El suavizado semanal (línea azul) responde más rápido a cambios recientes.
     """)
-
