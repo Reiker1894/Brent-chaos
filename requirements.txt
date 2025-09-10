@@ -17,3 +17,4 @@ seaborn
 yfinance
 scikit-learn
 hurst
+pandas_datareader
