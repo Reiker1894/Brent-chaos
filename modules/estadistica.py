@@ -1,61 +1,46 @@
 # modules/estadistica.py
-
-import streamlit as st
-import pandas as pd
-import numpy as np
-import yfinance as yf
-import seaborn as sns
-import matplotlib.pyplot as plt
-from scipy.stats import skew, kurtosis
-
-@st.cache_data
-def cargar_datos():
-    data = yf.download("BZ=F", start="1990-01-01")
-    data = data[['Adj Close']].rename(columns={'Adj Close': 'Brent_Price'})
-    data.dropna(inplace=True)
-    return data
-
 def mostrar_estadisticas():
-    st.header("Estadística Descriptiva del Precio del Brent")
-    df = cargar_datos()
-    st.markdown("""
-    Selecciona el rango de fechas para calcular estadísticas y visualizar la distribución:
-    """)
+import streamlit as st
+import pandas_datareader.data as web
+import pandas as pd
+from datetime import datetime
+import matplotlib.pyplot as plt
 
-    fecha_inicio = st.date_input("Fecha de inicio", df.index.min().date())
-    fecha_fin = st.date_input("Fecha de fin", df.index.max().date())
 
-    if fecha_inicio >= fecha_fin:
-        st.error("La fecha de inicio debe ser anterior a la fecha de fin.")
-        return
+start = "1987-05-20"
+end = datetime.today().strftime("%Y-%m-%d")
+df = web.DataReader("DCOILBRENTEU", "fred", start, end).dropna()
+df = df.rename(columns={"DCOILBRENTEU": "Brent_Price"})
 
-    df_filtrado = df[(df.index >= pd.to_datetime(fecha_inicio)) & (df.index <= pd.to_datetime(fecha_fin))]
 
-    if df_filtrado.empty:
-        st.warning("No hay datos para el rango seleccionado.")
-        return
+df_diaria = df.copy()
+df_semanal = df.resample('W').mean()
+df_mensual = df.resample('M').mean()
 
-    st.subheader("Resumen estadístico")
-    resumen = {
-        "Media": df_filtrado['Brent_Price'].mean(),
-        "Desviación Estándar": df_filtrado['Brent_Price'].std(),
-        "Asimetría": skew(df_filtrado['Brent_Price']),
-        "Curtosis": kurtosis(df_filtrado['Brent_Price'], fisher=True)
-    }
-    st.table(pd.DataFrame(resumen, index=["Estadísticas"]))
 
-    st.subheader("Distribución del Precio del Brent")
-    fig, ax = plt.subplots(figsize=(10,5))
-    sns.histplot(df_filtrado['Brent_Price'], kde=True, stat="density", bins=50, ax=ax, color="skyblue")
-    ax.set_title("Histograma con curva de densidad")
-    ax.set_xlabel("Precio (USD)")
-    ax.set_ylabel("Densidad")
-    st.pyplot(fig)
+st.subheader("Estadísticas Descriptivas")
 
-    st.markdown("""
-    **Interpretación sugerida:**
-    - La **asimetría positiva** indica una cola más larga hacia precios altos.
-    - La **curtosis mayor a 3** (distribución leptocórtica) sugiere mayor presencia de eventos extremos.
+
+desc_diaria = df_diaria.describe().T.assign(Frecuencia="Diaria")
+desc_semanal = df_semanal.describe().T.assign(Frecuencia="Semanal")
+desc_mensual = df_mensual.describe().T.assign(Frecuencia="Mensual")
+
+
+df_stats = pd.concat([desc_diaria, desc_semanal, desc_mensual])
+st.dataframe(df_stats, use_container_width=True)
+
+
+st.subheader("Serie Histórica")
+fig, ax = plt.subplots(figsize=(14,7))
+ax.plot(df_diaria.index, df_diaria["Brent_Price"], label="Diaria", alpha=0.3)
+ax.plot(df_semanal.index, df_semanal["Brent_Price"], label="Semanal", linewidth=1.5)
+ax.plot(df_mensual.index, df_mensual["Brent_Price"], label="Mensual", linewidth=2)
+ax.set_title("Serie histórica del Brent")
+ax.set_xlabel("Fecha")
+ax.set_ylabel("USD/barril")
+ax.legend()
+ax.grid(True)
+st.pyplot(fig)
     - Estas características refuerzan la necesidad de modelos no lineales y robustos.
     """)
 
