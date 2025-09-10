@@ -61,4 +61,4 @@ def mostrar_pruebas_normalidad():
     st.markdown("""
     **Interpretación sugerida:**
     - Si los p-valores son menores a 0.05, se rechaza la normalidad (alta probabilidad de distribuciones no normales).
-    - El QQ-Plot revela visualmente desviaciones de la normalidad
+    - El QQ-Plot revela visualmente desviaciones de la normalidad""")
