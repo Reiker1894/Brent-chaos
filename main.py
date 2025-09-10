@@ -1,34 +1,34 @@
-# main.py
+# Estructura de tu proyecto en GitHub
+
+# brent-chaos/
+# ├── app.py                ← App principal Streamlit
+# ├── requirements.txt     ← Dependencias
+# ├── data_utils.py         ← Descarga y limpieza
+# ├── analysis.py           ← Estadísticas, normalidad, Hurst, etc.
+# └── plots.py              ← Gráficos
 
 import streamlit as st
-
-# Importar módulos personalizados
-from modules.suavizados import mostrar_suavizados
 from modules.estadistica import mostrar_estadisticas
 from modules.normalidad import mostrar_pruebas_normalidad
 from modules.hurst import mostrar_exponente_hurst
+from modules.suavizados import mostrar_suavizados
 
-st.set_page_config(page_title="Análisis del Precio del Brent", layout="wide")
 
-st.title("Análisis Económico del Precio del Crudo Brent 🛢️")
+st.set_page_config(layout="wide", page_title="Análisis del Brent")
 
-st.markdown("""
-Esta aplicación permite explorar propiedades estadísticas y dinámicas no lineales del Brent, integrando visualizaciones, pruebas estadísticas y herramientas avanzadas como el exponente de Hurst. Ideal para el desarrollo de tesis en econometría, finanzas cuantitativas y econofísica.
-""")
 
-opcion = st.sidebar.selectbox(
-    "Selecciona un módulo de análisis",
-    ("Serie histórica + Suavizados",
-     "Estadística Descriptiva",
-     "Pruebas de Normalidad",
-     "Exponente de Hurst")
-)
+st.title("Dashboard de Análisis del Precio del Brent")
 
-if opcion == "Serie histórica + Suavizados":
-    mostrar_suavizados()
-elif opcion == "Estadística Descriptiva":
-    mostrar_estadisticas()
+
+opciones = ["Estadísticas Generales", "Suavizados", "Pruebas de Normalidad", "Exponente de Hurst"]
+opcion = st.sidebar.radio("Selecciona un análisis:", opciones)
+
+
+if opcion == "Estadísticas Generales":
+mostrar_estadisticas()
+elif opcion == "Suavizados":
+mostrar_suavizados()
 elif opcion == "Pruebas de Normalidad":
-    mostrar_pruebas_normalidad()
+mostrar_pruebas_normalidad()
 elif opcion == "Exponente de Hurst":
-    mostrar_exponente_hurst()
+mostrar_exponente_hurst()
