@@ -40,5 +40,4 @@ def mostrar_lyapunov():
     - Un valor **positivo y significativo** indica posible evidencia de **caos determinista**.
     - Este análisis es útil para estudiar series temporales financieras con dinámica no lineal.
     """)
-    except Exception as e:
-        st.error(f"Error al calcular Lyapunov: {e}")
+
