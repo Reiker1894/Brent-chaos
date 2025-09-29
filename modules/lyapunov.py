@@ -3,18 +3,17 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas_datareader.data as web
-import numpy as np
 
 @st.cache_data
 def cargar_datos():
-start = "1987-05-20"
-end = "2025-09-07"
-df = web.DataReader("DCOILBRENTEU", "fred", start, end).dropna()
-df = df.rename(columns={"DCOILBRENTEU": "Brent_Price"})
-df.reset_index(inplace=True)
-df['Date'] = pd.to_datetime(df['DATE']) if 'DATE' in df.columns else df['Date']
-df.set_index("Date", inplace=True)
-return df
+    start = "1987-05-20"
+    end = "2025-09-07"
+    df = web.DataReader("DCOILBRENTEU", "fred", start, end).dropna()
+    df = df.rename(columns={"DCOILBRENTEU": "Brent_Price"})
+    df.reset_index(inplace=True)
+    df['Date'] = pd.to_datetime(df['DATE']) if 'DATE' in df.columns else df['Date']
+    df.set_index("Date", inplace=True)
+    return df
 
 def calcular_lyapunov_series(serie, lag=1, eps=1e-5):
     n = len(serie)
@@ -40,11 +39,11 @@ def mostrar_lyapunov():
 
     st.markdown("""
     El exponente de **Lyapunov** mide la sensibilidad a las condiciones iniciales en sistemas dinámicos:
-    
+
     - **Positivo** → comportamiento **caótico**.
     - **Cero** → sistema **neutro**.
     - **Negativo** → sistema **estable**.
-    
+
     Su estimación sugiere si hay **dinámica no lineal compleja** en el sistema de precios.
     """)
 
