@@ -19,3 +19,4 @@ scikit-learn
 hurst
 pandas_datareader
 setuptools
+nolds
