@@ -5,8 +5,10 @@ import matplotlib.pyplot as plt
 
 @st.cache_data
 def cargar_datos():
-    df = pd.read_csv("data/brent_diario.csv", parse_dates=["Date"])
-    df.set_index("Date", inplace=True)
+    start = "1987-05-20"
+    end = "2025-09-07"
+    df = web.DataReader("DCOILBRENTEU", "fred", start, end).dropna()
+    df = df.rename(columns={"DCOILBRENTEU": "Brent_Price"})
     return df
 
 def calcular_lyapunov_series(serie, lag=1, eps=1e-5):
