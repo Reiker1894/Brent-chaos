@@ -20,7 +20,7 @@ secciones = [
 seleccion = st.sidebar.radio("Ir a:", secciones)
 
 if seleccion == "Inicio":
-    st.title("Pronósticos del precio del Brent utilizando medidas de caos y modelos de Machine Learnin")
+    st.title("Pronósticos del precio del Brent utilizando medidas de caos y modelos de Machine Learning")
     st.markdown("""
    El pronóstico del precio del Brent se sustenta en la literatura sobre mercados financieros complejos, caos y aprendizaje automático. Tradicionalmente, la formación de precios en los activos financieros se explicaba bajo la Hipótesis de Mercados Eficientes, que asume racionalidad, información perfecta y series temporales independientes e idénticamente distribuidas (I.I.D). Sin embargo, la evidencia empírica muestra que los precios presentan comportamientos no lineales, colas pesadas, y memoria de largo plazo, lo que sugiere que los mercados no están en equilibrio constante.
 
