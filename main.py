@@ -18,6 +18,7 @@ secciones = [
     "Suavizados",
     "Estadísticas",
     "Hurst"
+    "Lyapunov"
 ]
 seleccion = st.sidebar.radio("Ir a:", secciones)
 
@@ -53,6 +54,7 @@ elif seleccion == "Estadísticas":
 
 elif seleccion == "Hurst":
     mostrar_hurst()
+    
 elif seleccion == "Lyapunov":
     mostrar_lyapunov()
 
