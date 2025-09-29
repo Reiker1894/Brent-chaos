@@ -2,9 +2,8 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas_datareader.data as web
-from mpl_toolkits.mplot3d import Axes3D
+import plotly.graph_objects as go
 
 @st.cache_data
 def cargar_datos():
@@ -21,13 +20,14 @@ def reconstruccion_espacio_fase(data, delay=5):
     return x, y, z
 
 def mostrar_lyapunov():
-    st.header("Reconstrucción en el espacio de fases (Atractor tipo Lorenz)")
+    st.header("🔁 Reconstrucción del Espacio de Fases (Atractor tipo Lorenz)")
 
     st.markdown("""
-    Para visualizar el comportamiento dinámico no lineal de la serie del Brent,  
-    reconstruimos su **espacio de fases** con un **embedding 3D** utilizando retardos temporales.
-    
-    Esta técnica permite identificar patrones **caóticos** similares a los atractores de Lorenz.
+    Este gráfico tridimensional reconstruye el sistema dinámico del precio del Brent  
+    usando **embedding de retardos temporales**.  
+    Es similar a los atractores caóticos clásicos (como Lorenz).
+
+    **Explora el gráfico**: puedes rotar, acercar y ver detalles al pasar el cursor.
     """)
 
     df = cargar_datos()
@@ -37,17 +37,26 @@ def mostrar_lyapunov():
 
     x, y, z = reconstruccion_espacio_fase(serie, delay)
 
-    fig = plt.figure(figsize=(10, 6))
-    ax = fig.add_subplot(111, projection='3d')
-    ax.plot(x, y, z, lw=0.5, alpha=0.8)
-    ax.set_title(f"Espacio de fases embebido (delay = {delay})")
-    ax.set_xlabel("x(t)")
-    ax.set_ylabel(f"x(t + {delay})")
-    ax.set_zlabel(f"x(t + {2*delay})")
-    st.pyplot(fig)
+    fig = go.Figure(data=go.Scatter3d(
+        x=x,
+        y=y,
+        z=z,
+        mode='lines',
+        line=dict(color='cyan', width=2),
+        opacity=0.8
+    ))
 
-    st.markdown("""
-    - Este gráfico tridimensional revela la **estructura interna** del sistema dinámico.  
-    - Si el sistema tiene comportamiento **caótico determinista**, debería formarse una estructura similar a un atractor.
-    - El retardo óptimo puede ajustarse para obtener mejor separación entre trayectorias.
-    """)
+    fig.update_layout(
+        scene=dict(
+            xaxis_title="x(t)",
+            yaxis_title=f"x(t + {delay})",
+            zaxis_title=f"x(t + {2*delay})",
+            bgcolor="black"
+        ),
+        paper_bgcolor="black",
+        font=dict(color="white"),
+        title=f"Atractor reconstruido desde serie del Brent (delay={delay})",
+        margin=dict(l=0, r=0, b=0, t=40)
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
