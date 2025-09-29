@@ -17,7 +17,7 @@ secciones = [
     "Inicio",
     "Suavizados",
     "Estadísticas",
-    "Hurst"
+    "Hurst",
     "Lyapunov"
 ]
 seleccion = st.sidebar.radio("Ir a:", secciones)
