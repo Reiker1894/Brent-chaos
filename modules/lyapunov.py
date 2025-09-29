@@ -7,11 +7,14 @@ import numpy as np
 
 @st.cache_data
 def cargar_datos():
-    start = "1987-05-20"
-    end = "2025-09-07"
-    df = web.DataReader("DCOILBRENTEU", "fred", start, end).dropna()
-    df = df.rename(columns={"DCOILBRENTEU": "Brent_Price"})
-    return df
+start = "1987-05-20"
+end = "2025-09-07"
+df = web.DataReader("DCOILBRENTEU", "fred", start, end).dropna()
+df = df.rename(columns={"DCOILBRENTEU": "Brent_Price"})
+df.reset_index(inplace=True)
+df['Date'] = pd.to_datetime(df['DATE']) if 'DATE' in df.columns else df['Date']
+df.set_index("Date", inplace=True)
+return df
 
 def calcular_lyapunov_series(serie, lag=1, eps=1e-5):
     n = len(serie)
