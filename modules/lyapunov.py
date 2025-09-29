@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas_datareader.data as web
+import numpy as np
 
 @st.cache_data
 def cargar_datos():
