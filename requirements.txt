@@ -20,3 +20,4 @@ hurst
 pandas_datareader
 setuptools
 nolds
+plotly
